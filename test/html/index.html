@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>测试Index页面</title>
+    <script src="https://cdn.bootcss.com/vue/2.6.10/vue.js"></script>
+    <script src="https://cdn.bootcss.com/axios/0.19.0/axios.js"></script>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.css">
+    <style>
+    .le2 {
+        right: 0;
+    }
+    .side-bar {
+        margin-top: 5rem;
+    }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+    <nav class="navbar justify-content-between">
+            <a class="navbar-brand">Navbar</a>
+            <div class="form-inline">
+                <a class="nav-item nav-link active" href="#">Home <span class="sr-only">(current)</span></a>
+                <a class="nav-item nav-link" href="./login.html">Login</a>
+                <a class="nav-item nav-link" href="./signup.html">Signup</a>
+                <a class="nav-item nav-link" href="./ediot.html">Ediot</a>
+                <a class="nav-item nav-link" href="./categories.html">Category</a>
+            </div>
+            </nav>
+        <div class="row">
+
+        
+        <div class="main col-sm-8" id="app">
+            <div v-for="post in posts">
+                <div class="post">
+                    <p> <a href="./post.html">{{ post.title }}</a></p>
+                    <p>{{ post.category }}</p>
+                    <p>{{ post.body }}</p>
+                    <p>{{ post.author}}</p>
+                </div>
+            </div>
+        </div>
+        <div class="side-bar col-sm-3">
+
+        </div>
+    </div>
+    </div>
+
+    <script>
+    
+    new Vue({
+        el: "#app",
+        data () {
+            return {
+            posts: [] // []
+
+            }
+        },
+        mounted : function () {
+            axios.get('http://192.168.1.106:8000/posts')
+                .then(resp => 
+                    this.posts = resp["data"]["posts"]
+                )
+                .catch((e) => {
+                    console.log(e)
+                })
+        },
+    })
+
+    </script>
+</body>
+</html>
