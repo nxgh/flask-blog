@@ -80,3 +80,21 @@ $ flask run
 
 ## License
 [GPL](https://github.com/bailicangdu/vue2-elm/blob/master/COPYING)
+
+
+
+
+## 测试
+
+[√] 用户注册 - 创建用户
+```
+测试账户 密码            邮箱                   权限
+Test0   Password_123    test0@foxmail.com     Admin
+Test1   Password_123    test1@foxmail.com     User
+Test2   Password_123    test2@foxmail.com     User
+Test3   Password_123    test3@foxmail.com     User
+```
+
+[√] 用户登录
+[√] 权限验证
+[√] 创建文章

@@ -1,43 +1,42 @@
-import os
-
 from bson import ObjectId
 
 from app.extension import mongo
 
-author = os.getenv("app_AUTHOR", "nxgh")
 
 class Post(object):
 
     def insert(self, post):
-        mongo.db.posts.insert_one({
+        return mongo.db.posts.insert_one({
             "title": post["title"],
             "body": post["body"],
             "category": post["category"],
-            "author": author,
-            "comments": [], # {username: "", body:""}
-            "type_comment": post["type_comment"],
-         
-        })
-    
+            "comments": [],  # {username: "", body:""}
+        }).inserted_id
+
     def find_all(self):
         posts = []
         post_info = mongo.db.posts.find({})
         for post in post_info:
             post["id"] = str(post["_id"])
             del post["_id"]
+            del post["comments"]
+            del post["body"]
             posts.append(post)
         return posts
-    
+
     def find_one(self, post_id):
         post_info = mongo.db.posts.find_one({"_id": ObjectId(post_id)})
         post_info["id"] = str(post_info["_id"])
         del post_info["_id"]
+        for comment in post_info["comments"]:
+            comment["comment_id"] = str(comment["comment_id"])
+
         return post_info
 
     def delete(self, post_id):
         mongo.db.posts.delete_one({"_id": ObjectId(post_id)})
-        
-        return '', 204
+
+        return "", 204
 
     def category_post(self, category):
         posts = []
@@ -66,9 +65,33 @@ class Post(object):
             {"_id": ObjectId(post_id)},
             {
                 "$push": {
-                    "comment": comment
+                    "comments": {
+                        "id": ObjectId(),
+                        "username": comment["username"],
+                        "body": comment["body"],
+                        "reply": []
+                    }
                 }
             }
         )
+
+    def reply_comment(self, reply_id, comment):
+        """
+        Args: 
+            reply_id 回复的评论id
+
+        """
+        mongo.db.posts.update(
+            {"comments.id": ObjectId(reply_id)},
+            {
+                "$push": {
+                    "id": ObjectId(),
+                    "username": comment["username"],
+                    "body": comment["body"],
+                    "reply_id": ""
+                }
+            }
+        )
+
 
 post = Post()

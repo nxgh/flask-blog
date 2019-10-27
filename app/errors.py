@@ -14,7 +14,8 @@ def api_abort(code, message=None, **kwargs):
 
 
 def invalid_token():
-    response = api_abort(401, error='invalid_token', error_description='Either the token was expired or invalid.')
+    response = api_abort(401, error='invalid_token',
+                         error_description='Either the token was expired or invalid.')
     response.headers['WWW-Authenticate'] = 'Bearer'
     return response
 

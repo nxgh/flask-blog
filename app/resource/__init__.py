@@ -13,8 +13,11 @@ blog_api = Api(blog_bp)
 user_api = Api(user_bp)
 
 
-from app.resource.blog.blog import Post, Posts, Category, Comments, Categories
-from app.resource.user.user import User, Token, ConfimToken
+from app.resource.category import Categories, Category
+from app.resource.posts import Post, Posts
+from app.resource.comments import Comments
+from app.resource.user import User
+from app.resource.token import Token
 
 
 blog_api.add_resource(Posts, "/posts")
@@ -23,8 +26,7 @@ blog_api.add_resource(Post, "/post", "/post/<string:post_id>")
 blog_api.add_resource(Category, "/category", "/category/<string:category>")
 blog_api.add_resource(Comments, "/comment", "/comment/<string:comment_id>")
 
-user_api.add_resource(User, '/user', '/user/<string:user_id>')
 user_api.add_resource(Token, '/token')
-user_api.add_resource(ConfimToken, '/confim/<string:token>')
+user_api.add_resource(User, '/users')
 
 
