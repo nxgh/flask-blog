@@ -18,7 +18,9 @@ from app.resource.posts import Post, Posts
 from app.resource.comments import Comments
 from app.resource.user import User
 from app.resource.token import Token
+from app.resource.avatar import AvatarApi
 
+blog_api.add_resource(AvatarApi, "/avatar/<string:user_id>")
 
 blog_api.add_resource(Posts, "/posts")
 blog_api.add_resource(Categories, "/categories")

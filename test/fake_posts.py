@@ -5,64 +5,41 @@ import time
 from datetime import datetime
 from bson import ObjectId, timestamp
 
+post = """
 
+"""
 fake = Faker('zh-CN')
-client = pymongo.MongoClient('mongodb://blog_dev:password@localhost:27017/blog_dev')
+client = pymongo.MongoClient(
+    'mongodb://blog_dev:password@localhost:27017/blog_dev')
 
 BLOGDEV = client['blog_dev']
 posts = BLOGDEV['posts']
 
 
-post_id = "5db17bd82b0e1ab186c96eec"
+comment_id = "5dbc09faf4fb46d0f0f7a538"
+comment = {
+    "body": "管理员回复!",
+	"post_id": "5db7e64432841e5c643ab2c3",
+	"reply_name": "Test1",
+	"reply_id": "5dbae0183af1d43457bfe89a",
+    "username": "test",
+    "user_id": "test",
+}
 
-
-def add_comment(self, post_id, comment):
+if __name__ == "__main__":
     posts.update(
-        {"_id": ObjectId(post_id)},
+        {"comments.id": ObjectId(comment_id)},
         {
             "$push": {
-                "comments": {
+                "comments.$.reply": {
                     "id": ObjectId(),
                     "username": comment["username"],
+                    "user_id": comment["user_id"],
                     "body": comment["body"],
-                    "reply": []
+                    "reply_id": comment["reply_id"],
+                    "reply_name": comment["reply_name"],
+                    "like": 0,
                 }
             }
         }
     )
-
-def reply_comment(self, reply_id, comment):
-
-    posts.update(
-        {"comments.id": ObjectId(reply_id)},
-        {
-            "$push": {
-                "id": ObjectId(),
-                "username": comment["username"],
-                "body": comment["body"],
-                "reply_id": ""
-            }
-        }
-    )
-
-
-if __name__ == "__main__":
-    comment = {
-        "username": "李密",
-        "body": "唐室的江山为兄掌，封你个一字并肩王",
-    }
-    reply1 = {
-        "usernmae": "王伯当",
-        "body": "说什么一字并肩王，羞得王勇面无光",
-    }
-    reply2 = {
-        "username": "李密",
-        "body": "君臣义路好商量，李密打马朝前闯",
-    }
-    reply3 = {
-        "usernmae": "王伯当",
-        "body": "王伯当错保无义的王",
-    }
-
-
-

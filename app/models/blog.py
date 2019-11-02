@@ -10,9 +10,9 @@ class Post(object):
             "title": post["title"],
             "body": post["body"],
             "category": post["category"],
-            "comments": [],  # {username: "", body:""}
+            "comments": [], # {username: "", body:""}  
         }).inserted_id
-
+    
     def find_all(self):
         posts = []
         post_info = mongo.db.posts.find({})
@@ -23,19 +23,20 @@ class Post(object):
             del post["body"]
             posts.append(post)
         return posts
-
+    
     def find_one(self, post_id):
         post_info = mongo.db.posts.find_one({"_id": ObjectId(post_id)})
         post_info["id"] = str(post_info["_id"])
         del post_info["_id"]
         for comment in post_info["comments"]:
-            comment["comment_id"] = str(comment["comment_id"])
-
+            comment["id"] = str(comment["id"])
+            for reply in comment["reply"]:
+                reply['id'] = str(reply['id'])
         return post_info
 
     def delete(self, post_id):
         mongo.db.posts.delete_one({"_id": ObjectId(post_id)})
-
+        
         return "", 204
 
     def category_post(self, category):
@@ -68,30 +69,31 @@ class Post(object):
                     "comments": {
                         "id": ObjectId(),
                         "username": comment["username"],
+                        "user_id": comment["user_id"],
                         "body": comment["body"],
-                        "reply": []
+                        "reply": [],
+                        "like": 0,
                     }
                 }
             }
         )
 
-    def reply_comment(self, reply_id, comment):
-        """
-        Args: 
-            reply_id 回复的评论id
-
-        """
-        mongo.db.posts.update(
-            {"comments.id": ObjectId(reply_id)},
+    def add_reply(self, comment_id, comment):
+        mongo.db. posts.update(
+            {"comments.id": ObjectId(comment_id)},
             {
                 "$push": {
-                    "id": ObjectId(),
-                    "username": comment["username"],
-                    "body": comment["body"],
-                    "reply_id": ""
+                    "comments.$.reply": {
+                        "id": ObjectId(),
+                        "username": comment["username"],
+                        "user_id": comment["user_id"],
+                        "body": comment["body"],
+                        "reply_id": comment["reply_id"],
+                        "reply_name": comment["reply_name"],
+                        "like": 0,
+                    }
                 }
             }
         )
-
 
 post = Post()

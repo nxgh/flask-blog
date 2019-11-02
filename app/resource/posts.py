@@ -11,6 +11,7 @@ class Posts(Resource):
 
     def get(self):
         '''返回文章集合'''
+        print(post.find_all())
         return {
             "posts":post.find_all()
         }
