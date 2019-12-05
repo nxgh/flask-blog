@@ -2,6 +2,7 @@ import os
 from werkzeug.security import generate_password_hash, check_password_hash
 from bson import ObjectId
 from datetime import datetime
+from flask import current_app
 
 from app.extension import mongo
 from app.errors import api_abort
@@ -14,71 +15,76 @@ class User(object):
         return password_hash
 
     @staticmethod
-    def validate_password(self, password_hash, password):
+    def validate_password(password_hash, password):
         return check_password_hash(password_hash, password)
 
-    def validate_email_exist(self, email):
-        user_info = mongo.db.users.find_one({"email": email})
-        if user_info :
+    
+    def validate_user_exist(self, query):
+        ''':param query: <class dict> {"_id": "xxx"}'''
+        user_info = mongo.db.users.find_one(query)
+        if user_info:
             return True
         return False
     
-    def validate_username_exist(self, username):
-        if mongo.db.users.find_one({"username": username}) :
-            return True
-        return False
-
-    def validate_user_exist(self, email, pwd):
-        """验证用户是否存在， 若存在返回user_id"""
-        user_info = mongo.db.users.find_one_or_404({"email": email})
-        if user is None and not self.validate_password(user["password_hash"], pwd):
-            return api_abort(400, "Either the username or password was invalid.")
-        else:
-            return str(user_info["_id"])
-
 
     def insert(self, user_info):
-        """
-        Args: 
+        """Insert user info
+        Args:
+            user_info: dict
+            username: str
+            email:  str or  None
+            password_hash: str or None
 
-            {
-                "username": "王花花"，
-                "email": "whh@foxmail.com",
-                "password": "Password_123",
-                "ip": "127.0.0.1"
-            }
-        Return: 
-        
-          <class bson.objectid.ObjectId>
+        Returns:
+            返回一个 ObjectId 的str 
+
+            For example:
+                5de675e4cc14c528f2e98969
+
+        Raises:
+
         """
-        return mongo.db.users.insert_one({
+        pwd = user_info.get('password', '')
+
+        Object_Id = mongo.db.users.insert_one({
             "username" : user_info["username"],
-            "password_hash" : self.set_password(user_info["password"]),
-            "email" : user_info["email"],
-            "authority" : user_info["authority"],
-            "login_info": [
-                {
-                "ip" : user_info["ip"],
-                "login_time" : datetime.timestamp(datetime.now()),
-                }
-            ],
+            "password_hash" : self.set_password(pwd),
+            "email" : user_info.get('email', ''),
+            "role" : "USER",
+            "avatar_url": user_info.get('avatar_url', ''),
             "locket" : False,
-        }).inserted_id
-        
+        }).inserted_id # Object_Id:  <class bson.objectid.ObjectId>
+        current_app.logger.info(f'Create User: {Object_Id}')
+        return str(Object_Id)
 
-    def update_login_status(self, user_id, ip):
-        mongo.db.users.update_one(
-            {"_id": ObjectId(user_id)},
-            {"$push": {
-                "login_info": {
-                    "ip" : ip,
-                    "login_time" : datetime.timestamp(datetime.utcnow()),
+    def find(self, query):
+        '''
+        Args:
+            query: <str:user_id> or dict 
+
+        Returns:
+            dict or None 
+            For example:
+                {
+                    '_id': '',
+                    'username': '',
+                    'email': '',
+                    'role': 'USER' or 'ADMIN',
+                    'locket: False,
+                    'password_hash':'',
                 }
-            }}
-        )
+        Raises:
+            None
+        '''
+        if type(query) == str:
+            u = mongo.db.users.find_one({'_id': ObjectId(query)})
+        else:
+            u = mongo.db.users.find_one(query)
+        if u:
+            u['_id'] = str(u['_id'])
+            return u
+        else: 
+            return None
 
-    def get_user_permission(self, user_id):
-        return mongo.db.users.find_one({"_id": ObjectId(user_id)})["authority"]
-        
 
 user = User()

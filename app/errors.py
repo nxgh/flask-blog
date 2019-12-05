@@ -21,15 +21,26 @@ def invalid_token():
 
 
 def token_missing():
-    response = api_abort(401)
+    response = api_abort(401, 'missing token')
     response.headers['WWW-Authenticate'] = 'Bearer'
     return response
-
 
 class ValidationError(ValueError):
     pass
 
+def register_exception(app):
+    @app.errorhandler(ValidationError)
+    def validation_error(e):
+        return api_abort(400, e.args[0])
 
-# @api_v1.errorhandler(ValidationError)
-# def validation_error(e):
-#     return api_abort(400, e.args[0])
+    @app.errorhandler(404)
+    def page_not_found(e):
+        return api_abort(404, 'The requested URL was not found on the server')
+
+    @app.errorhandler(405)
+    def method_not_allow(e):
+        return api_abort(405, 'The method is not allow for the requested URL')
+
+    @app.errorhandler(500)
+    def server_error(e):
+        return api_abort(500)

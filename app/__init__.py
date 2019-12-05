@@ -1,13 +1,13 @@
 import os
 import click
-import logging
-from logging.handlers import RotatingFileHandler, SMTPHandler
 from flask import Flask, jsonify
-
 
 from app.config import config
 from app.extension import mongo, mail
-from app.resource import blog_bp, user_bp
+from app.api import blog_bp, user_bp
+from app.commands import register_cli
+from app.logger import register_logging
+from app.errors import register_exception
 
 
 def create_app(config_name=None):
@@ -17,23 +17,22 @@ def create_app(config_name=None):
     app = Flask('app')
     app.config.from_object(config[config_name])
 
-    register_extensions(app)  # 扩展初始化
-    register_views(app)  # 蓝图
-    # register_commands(app) # 自定义shell命令
-    register_shell_context(app)  # shell 上下文处理函数
+    register_extensions(app)
+    register_views(app)
+    register_shell_context(app)
+    register_logging(app)
+    register_cli(app)
+    register_exception(app)
 
     return app
 
 
 def register_extensions(app):
     mongo.init_app(app)
-    # toolbar.init_app(app)
     mail.init_app(app)
 
 
 def register_views(app):
-    # app.register_blueprint(api_v1, url_prefix='/api/v1')
-    # app.register_blueprint(chat_bp, url_prefix='/chat')
     app.register_blueprint(blog_bp)
     app.register_blueprint(user_bp)
 
