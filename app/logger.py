@@ -12,26 +12,27 @@ def register_logging(app):
             record.remote_addr = request.remote_addr
             return super(RequestFormatter, self).format(record)
 
-    request_formatter = RequestFormatter(
-        '[%(asctime)s] %(remote_addr)s requested %(url)s\n'
-        '%(levelname)s in %(module)s: %(message)s'
+    formatter = RequestFormatter(
+        '[%(asctime)s] %(remote_addr)s \n'
+        'requested %(url)s\n'
+        'File %(pathname)s line %(lineno)d in %(funcName)s\n'
+        'level - %(levelname)s - message %(message)s'
     )
 
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-    file_handler = RotatingFileHandler(
-        os.path.join(basedir, 'logs/blog.log'),
+    error_handler = RotatingFileHandler(
+        os.path.join(basedir, 'logs/error.log'),
         maxBytes=10 * 1024 * 1024, backupCount=10)
 
-    request_handler = RotatingFileHandler(
-        os.path.join(basedir, 'logs/request.log'),
+    info_handler = RotatingFileHandler(
+        os.path.join(basedir, 'logs/info.log'),
         maxBytes=10 * 1024 * 1024, backupCount=10)
 
-    file_handler.setFormatter(formatter)
-    file_handler.setLevel(logging.INFO)
+    error_handler.setFormatter(formatter)
+    error_handler.setLevel(logging.ERROR)
 
-    request_handler.setFormatter(request_formatter)
-    request_handler.setLevel(logging.INFO)
+    info_handler.setFormatter(formatter)
+    info_handler.setLevel(logging.INFO)
+
     # mail_handler = SMTPHandler(
     #     mailhost=app.config['MAIL_SERVER'],
     #     fromaddr=app.config['MAIL_USERNAME'],
@@ -43,5 +44,6 @@ def register_logging(app):
 
     # if not app.debug:
         # app.logger.addHandler(mail_handler)
-    app.logger.addHandler(file_handler)
-    app.logger.addHandler(request_handler)
+    if app.debug:
+        app.logger.addHandler(info_handler)
+    app.logger.addHandler(error_handler)
