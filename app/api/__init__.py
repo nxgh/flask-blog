@@ -13,14 +13,15 @@ blog_api = Api(blog_bp)
 user_api = Api(user_bp)
 
 
-from app.api.category import Categories, Category
-from app.api.posts import Post, Posts
-from app.api.comments import Comments
-from app.api.user import User, GitToken, GitUser
-from app.api.token import Token
-from app.api.avatar import AvatarApi
+from app.api.post.category import Categories, Category
+from app.api.post.posts import Post, Posts
+from app.api.post.comments import Comments
 
-blog_api.add_resource(AvatarApi, "/avatar/<string:user_id>")
+from app.api.user.user import User
+from app.api.user.oauth import GitToken, GitUser
+from app.api.user.token import Token
+from app.api.user.avatar import AvatarApi
+
 
 blog_api.add_resource(Posts, "/posts")
 blog_api.add_resource(Categories, "/categories")
@@ -34,5 +35,6 @@ user_api.add_resource(User, '/user')
 user_api.add_resource(GitToken, '/oauth/github')
 user_api.add_resource(GitUser, '/oauth/redirect')
 
+blog_api.add_resource(AvatarApi, "/avatar/<string:user_id>")
 
 
