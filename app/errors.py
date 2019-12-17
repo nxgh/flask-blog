@@ -1,8 +1,6 @@
 from flask import jsonify
 from werkzeug.http import HTTP_STATUS_CODES
 
-from app.extension import mongo
-
 
 def api_abort(code, message=None, **kwargs):
     if message is None:

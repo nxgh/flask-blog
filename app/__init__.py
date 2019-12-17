@@ -3,12 +3,15 @@ import click
 from flask import Flask, jsonify
 
 from app.config import config
-from app.extension import mongo, mail
+from app.extension import db, mail
 from app.api import blog_bp, user_bp
 from app.commands import register_cli
 from app.logger import register_logging
 from app.errors import register_exception
 
+from app.models.user import User, Permission
+from app.models.blog import Comment, Post
+from app.models.question import Question, Answer
 
 def create_app(config_name=None):
     if config_name is None:
@@ -28,7 +31,7 @@ def create_app(config_name=None):
 
 
 def register_extensions(app):
-    mongo.init_app(app)
+    db.init_app(app)
     mail.init_app(app)
 
 
@@ -40,4 +43,4 @@ def register_views(app):
 def register_shell_context(app):
     @app.shell_context_processor
     def make_shell_context():
-        return dict(mongo=mongo)
+        return dict(db=db, User=User, Permission=Permission, Post=Post, Comment=Comment, Question=Question)

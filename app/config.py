@@ -34,16 +34,29 @@ class BaseConfig(object):
 
 
 class DevelopmentConfig(BaseConfig):
-    MONGO_URI = 'mongodb://blog_dev:password@localhost:27017/blog_dev'
+    DEBUG = True
+    MONGODB_DB = os.getenv('MONGODB_DB', 'blog_dev')
+    MONGODB_HOST = os.getenv('MONGODB_HOST', '127.0.0.1')
+    MONGODB_PORT = int(os.getenv('MONGODB_PORT', 27017))
+    MONGODB_USERNAME = os.getenv('MONGODB_USERNAME', 'blog_dev')
+    MONGODB_PASSWORD = os.getenv('MONGODB_PASSWORD', 'password')
 
 
 class TestingConfig(BaseConfig):
     TESTING = True
-    MONGO_URI = 'mongodb://rbac:password@localhost:20017/rbac'  
+    MONGODB_DB = os.getenv('MONGODB_DB', 'test')
+    MONGODB_HOST = os.getenv('MONGODB_HOST', '127.0.0.1')
+    MONGODB_PORT = int(os.getenv('MONGODB_PORT', 20017))
+    MONGODB_USERNAME = os.getenv('MONGODB_USERNAME', 'test')
+    MONGODB_PASSWORD = os.getenv('MONGODB_PASSWORD', 'password')
 
 
 class ProductionConfig(BaseConfig):
-    MONGO_URI = os.getenv('MONGODB_URI')
+    MONGODB_DB = os.getenv('MONGODB_DB','')
+    MONGODB_HOST = os.getenv('MONGODB_HOST','')
+    MONGODB_PORT = int(os.getenv('MONGODB_PORT', 0))
+    MONGODB_USERNAME = os.getenv('MONGODB_USERNAME', '')
+    MONGODB_PASSWORD = os.getenv('MONGODB_PASSWORD', '')
 
 
 config = {

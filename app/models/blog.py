@@ -1,99 +1,79 @@
+import json
+
 from bson import ObjectId
+from mongoengine import (
+    StringField, 
+    ReferenceField, 
+    EmbeddedDocument, 
+    EmbeddedDocumentField,
+    EmbeddedDocumentListField,
+    Document,
+    ListField,
+    CASCADE, DENY, NULLIFY,
+    IntField,
+    BooleanField,
+    ObjectIdField,
+    queryset_manager
+)
+# from mongoengine.queryset.manager import queryset_manager
 
-from app.extension import mongo
+from flask import current_app
+from app.errors import api_abort
+from .user import User
 
 
-class Post(object):
 
-    def insert(self, post):
-        return mongo.db.posts.insert_one({
-            "title": post["title"],
-            "body": post["body"],
-            "category": post["category"],
-            "comments": [], # {username: "", body:""}  
-        }).inserted_id
-    
-    def find_all(self):
-        posts = []
-        post_info = mongo.db.posts.find({})
-        for post in post_info:
-            post["id"] = str(post["_id"])
-            del post["_id"]
-            del post["comments"]
-            del post["body"]
-            posts.append(post)
-        return posts
-    
-    def find_one(self, post_id):
-        post_info = mongo.db.posts.find_one({"_id": ObjectId(post_id)})
-        post_info["id"] = str(post_info["_id"])
-        del post_info["_id"]
-        for comment in post_info["comments"]:
-            comment["id"] = str(comment["id"])
-            for reply in comment["reply"]:
-                reply['id'] = str(reply['id'])
-        return post_info
 
-    def delete(self, post_id):
-        mongo.db.posts.delete_one({"_id": ObjectId(post_id)})
-        
-        return "", 204
+class Comment(EmbeddedDocument):
+    cid = ObjectIdField(default=lambda: ObjectId())
+    author = ReferenceField(User)
+    content = StringField()
+    reply = ObjectIdField()
 
-    def category_post(self, category):
-        posts = []
-        post_info = mongo.db.posts.find({"category": category})
-        for post in post_info:
-            post["id"] = str(post["_id"])
-            del post["_id"]
-            posts.append(post)
-        return posts
 
-    def update(self, post_id, post_info):
-        mongo.db.posts.update(
-            {"_id": ObjectId(post_id)},
-            {
-                "$set": {
-                    "title": post_info["title"],
-                    "body": post_info["body"],
-                    "category": post_info["category"],
-                    "type_comment": post_info["type_comment"],
+
+
+class Post(Document):
+    # reverse_delete_rule=CASCADE 级联删除
+    # author = ReferenceField(User, reverse_delete_rule=NULLIFY)
+
+    title = StringField(max_length=1024, required=True)
+    content = StringField()
+    like = IntField(default=0)
+    can_comment = BooleanField(default=True)
+
+    category = StringField(max_length=30)
+    tags = ListField(StringField(max_length=30))
+    comments = EmbeddedDocumentListField('Comment')
+
+    @classmethod
+    def query_post_by_id(cls, id):
+        # FIXME: 写法好丑
+        try:
+            post = cls.objects(id=id).first()
+            if post is None: raise Exception('post not found')
+            comments = []
+            for i in post.comments:
+                comment = {
+                    'author_id': i.author.id,
+                    'username': i.author.username,
+                    'avatar': i.author.avatar,
+                    'content': i.content,
+                    "comment_id": i.cid
                 }
-            }
-        )
+                comments.append(comment)
+            print(comments)
 
-    def add_comment(self, post_id, comment):
-        mongo.db.posts.update(
-            {"_id": ObjectId(post_id)},
-            {
-                "$push": {
-                    "comments": {
-                        "id": ObjectId(),
-                        "username": comment["username"],
-                        "user_id": comment["user_id"],
-                        "body": comment["body"],
-                        "reply": [],
-                        "like": 0,
-                    }
-                }
-            }
-        )
+            post.comments = comments
+            data = json.loads(post.to_json(use_db_field=False))
 
-    def add_reply(self, comment_id, comment):
-        mongo.db. posts.update(
-            {"comments.id": ObjectId(comment_id)},
-            {
-                "$push": {
-                    "comments.$.reply": {
-                        "id": ObjectId(),
-                        "username": comment["username"],
-                        "user_id": comment["user_id"],
-                        "body": comment["body"],
-                        "reply_id": comment["reply_id"],
-                        "reply_name": comment["reply_name"],
-                        "like": 0,
-                    }
-                }
-            }
-        )
+            data['id'] = data['id']['$oid']
+            del data['_id']
+            for j in data['comments']:
+                j['author_id'] = j['author_id']['$oid']
+            return data
 
-post = Post()
+        except Exception as e:
+            current_app.logger.error(e)
+            return False
+

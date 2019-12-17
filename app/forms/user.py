@@ -1,7 +1,5 @@
 import re
 from webargs import fields, validate, ValidationError
-# from app.extension import mongo
-from app.models.user import user
 from flask import current_app
 
 
@@ -13,11 +11,11 @@ def validateEmail(email):
 
 def validatePwd(pwd):
     # 至少 8位, 一个小写字母，一个大写字母，一个数字,一个特殊字符[$@$!_%*?&]
-    pattern = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?_&])[A-Za-z\d$@$!_%*?&]{8,}')
-    current_app.logger.info(f'[validatePwd]: { pattern.match(pwd)}')
-    if pattern.match(pwd) == None:
-        raise ValidationError("Password Illegal")
-    
+    # pattern = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?_&])[A-Za-z\d$@$!_%*?&]{8,}')
+    # current_app.logger.info(f'[validatePwd]: { pattern.match(pwd)}')
+    # if pattern.match(pwd) == None:
+    #     raise ValidationError("Password Illegal")
+    pass    
 
 login_args = {
     "email": fields.Str(required=True,validate=validateEmail, locations="json"),

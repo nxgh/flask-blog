@@ -5,5 +5,5 @@ from flask import send_file
 
 class AvatarApi(Resource):
 
-    def get(self, user_id):
-        return send_file('avatars/' + str(user_id))
+    def get(self):
+        return send_file('avatars/anonymous.png')
