@@ -13,11 +13,14 @@ from app.models.user import User
 SECRET_KEY = os.getenv("SECRET_KEY", "dev key")
 
 
-def generate_token(user_id):
+def generate_token(user_id, t="login"):
     user_id = str(user_id)
+    expires_in=3600 * 24 * 30
+    if t == 'confirm': expires_in=3600 * 3
+    elif t == 'reset': expires_in = 3600
     try:
         data = {"user_id": user_id}
-        s = Serializer(SECRET_KEY, expires_in=3600 * 24 * 30)
+        s = Serializer(SECRET_KEY, expires_in=expires_in)
         token = s.dumps(data).decode('ascii')
         current_app.logger.info(f'user_id: {user_id}\n token:{token}')
         return token
