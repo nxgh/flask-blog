@@ -67,9 +67,10 @@ class Post(Document):
             post.comments = comments
             data = json.loads(post.to_json(use_db_field=False))
 
-            data['id'] = data['id']['$oid']
+            data['id'] = data['_id']['$oid']
             del data['_id']
             for j in data['comments']:
+                j['comment_id'] = j['comment_id']['$oid']
                 j['author_id'] = j['author_id']['$oid']
             return data
 

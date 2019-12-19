@@ -26,11 +26,12 @@ def register_cli(app):
 
 
         click.echo('Generating the User..')
-        for i in range(10):
+        # FIXME:
+        for i in range(1, 10):
             u = User(
                 email = fake.email(),
                 username = fake.name(),
-                avatar = fake.image_url()
+                avatar = f'http://192.168.1.106:8000/avatar/r{i}.png'
             )
             u.set_password('helloworld')
             u.save()

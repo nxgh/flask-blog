@@ -43,4 +43,12 @@ def register_views(app):
 def register_shell_context(app):
     @app.shell_context_processor
     def make_shell_context():
-        return dict(db=db, User=User, Permission=Permission, Post=Post, Comment=Comment, Question=Question)
+        return dict(
+            db=db, 
+            mail=mail,
+            User=User, 
+            Permission=Permission, 
+            Post=Post, 
+            Comment=Comment, 
+            Question=Question, 
+        )
