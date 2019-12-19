@@ -58,17 +58,20 @@ class User(Document):
     def validate_password(self, password):
         return check_password_hash(self.password_hash, password)
 
-    def add_permission(self, perm):
-        self.role += perm
+    def add_permission(self, perm_list):
+        for perm in perm_list:
+            if not self.has_permission(perm):
+                self.role += perm
 
-    def remove_permission(self, perm):
-        self.role -= perm
+    def remove_permission(self, perm_list):
+        self.role -= sum(perm_list)
     
-    def reset_permission(self, perm):
+    def reset_permission(self):
         self.role = 0
 
     def has_permission(self, perm):
         return self.role & perm == perm
+                
     
 
 
