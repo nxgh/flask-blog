@@ -1,11 +1,11 @@
 import json
 
-from flask import request, make_response, current_app, g
+from flask import request, make_response, current_app, g, redirect
 from flask_restful import Resource
 from webargs.flaskparser import parser
 
 from app.models.user import User, Permission
-from app.api.auth import generate_token, permission_required
+from app.api.auth import generate_token, permission_required, validate_token
 from app.forms.user import login_args
 from app.errors import api_abort
 
@@ -40,3 +40,17 @@ class Token(Resource):
         except Exception as e:
             current_app.logger.error(e)
             return api_abort(500)
+
+
+class EmailToken(Resource):
+
+    def get(self, token):
+        if not validate_token(token):
+            return api_abort(401)
+        u = User.objects(id=g.uid).first()
+        u.add_permission([Permission.COMMENT, Permission.ASK, Permission.DELETE])
+        u.save()
+        
+        return {
+            'confirm_email': True
+        }

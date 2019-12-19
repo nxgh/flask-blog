@@ -16,17 +16,22 @@ basedir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 class BaseConfig(object):
 
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev key')
-
-    # 邮件服务
-    MAIL_SERVER = os.getenv('MAIL_SERVER')
-    MAIL_PORT = 465
-    MAIL_USE_SSL = True
-    MAIL_USE_TLS = False
-    MAIL_USERNAME = os.getenv('MAIL_USERNAME')
-    MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
-    MAIL_DEFAULT_SENDER = ('NXGH', MAIL_USERNAME)
     APP_AUTHOR = os.getenv('APP_AUTHOR')
     APP_EMAIL = os.getenv('APP_EMAIL')
+
+    # 邮件服务
+
+    MAIL_SERVER = os.getenv('MAIL_SERVER','')
+    MAIL_PORT = os.getenv('MAIL_PORT', 587)
+    MAIL_USE_SSL = True
+    MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
+
+    MAIL_USERNAME = os.getenv('MAIL_USERNAME')
+    MAIL_DEFAULT_SENDER = os.getenv('MAIL_USERNAME')
+
+    # 使用 sendgrid 配置
+    # MAIL_USE_TLS = True
+    # MAIL_PASSWORD = os.getenv('SENDGRID_API_KEY')
 
     # 文件存储目录
     APP_UPLOAD_PATH = os.path.join(basedir, 'uploads')

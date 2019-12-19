@@ -19,7 +19,7 @@ from app.api.post.comments import Comments
 
 from app.api.user.user import UserApi
 from app.api.user.oauth import GitToken, GitUser
-from app.api.user.token import Token
+from app.api.user.token import Token, EmailToken
 from app.api.user.avatar import AvatarApi
 
 
@@ -30,11 +30,12 @@ blog_api.add_resource(Category, "/category", "/category/<string:category>")
 blog_api.add_resource(Comments, "/comment", "/comment/<string:comment_id>")
 
 user_api.add_resource(Token, '/token')
-user_api.add_resource(UserApi, '/user')
+user_api.add_resource(EmailToken, '/auth/email/<string:token>')
+user_api.add_resource(UserApi, '/user', '/user/<string:user_id>')
 
 user_api.add_resource(GitToken, '/oauth/github')
 user_api.add_resource(GitUser, '/oauth/redirect')
 
-blog_api.add_resource(AvatarApi, "/avatar")
+blog_api.add_resource(AvatarApi, "/avatar/<string:file_name>")
 
 

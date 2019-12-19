@@ -22,16 +22,23 @@ def _send_async_mail(app, message):
 
 
 def send_mail(subject, to, html):
+    '''
+    subject: 标题
+    to: 收件人
+    html: html
+    '''
     app = current_app._get_current_object()
     message = Message(subject, recipients=[to], html=html)
     thr = Thread(target=_send_async_mail, args=[app, message])
     thr.start()
     return thr
 
-
-def send_confirm_email(to, message):
-    
-    send_mail(subject='Email Confirm', to=to, html=message)
+def send_confirm_email(email, username, token):
+    html = render_template('confirm.html',token=token, username=username, email=email)
+    send_mail(subject='Please confirm your email address', 
+            to=email, 
+            html=html
+    )
 
 
 def send_reset_password_email(user, token):
