@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+    #container {
+        display: flex;
+        flex-direction: column;
+        align-content: center;
+        justify-content: center;
+    }
+    header img {
+        height: 300px;
+    }
+    #username,
+    #email {
+        font-weight: 700;
+    }
+    a {
+        text-decoration: none;
+    }
+    button {
+        color: #fff;
+        height: 40px;
+        background-color: #4bc5ff;
+        border-width: 0;
+        padding: 0;
+        display: block;
+        width: 80%;
+        font-size: 20px;
+        text-decoration: none;
+    }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <header>
+            <!-- nginx 代理地址 -->
+            <img src="http://192.168.1.106:8000/avatar/logo.jpg" alt="">
+            <h2>
+                Please confirm your email address for your account on Nxgh Blog
+            </h2>
+        </header>
+        <section>
+            <p>
+                You have created the Username: <span id='username'>{{ username }}</span>. 
+                As an extra security measure, 
+                we need to verify your email address <span id='email'>{{ email }}</span>. 
+                To add this email to your account, please click the button below.
+            </p>
+            <a href="http://192.168.1.106:8000/auth/email/{{token}}">
+            <button >
+                <!-- TODO: 这里应该是前端的地址 -->
+                    Confirm Your Email
+                </button>
+            </a>
+            <small>This link will expire in 1 days.</small>
+        </section>
+    </div>
+
+
+</body>
+</html>
